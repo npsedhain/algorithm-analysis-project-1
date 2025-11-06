@@ -1,0 +1,7 @@
+n,distribution,runtime_ms,comparisons,min_distance
+1000,uniform,0.4063,1132,0.686109
+1000,clustered,0.3801,1084,0.169128
+5000,uniform,2.2896,6447,0.140478
+5000,clustered,2.1744,6277,0.0292485
+10000,uniform,4.7512,12968,0.0670915
+10000,clustered,4.5855,12706,0.0186843

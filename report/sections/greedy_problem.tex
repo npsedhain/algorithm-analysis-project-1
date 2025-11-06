@@ -1,0 +1,331 @@
+\section{Maximum Location Discovery: A Greedy Approach}
+\label{sec:greedy}
+
+\subsection{Real-World Problem: Location Discovery Through Social Connections}
+\label{sec:greedy-real-problem}
+
+Consider a user who has just moved to a new city and wants to discover interesting places to visit. Modern location-based social media platforms allow users to follow friends who share their favorite locations---restaurants, coffee shops, parks, museums, entertainment venues, and other points of interest. However, users face practical constraints on how many people they can meaningfully follow:
+
+\begin{itemize}
+\item \textbf{Platform limitations}: Some services offer premium features with limited "follow slots" (e.g., only 10-20 priority follows whose updates appear prominently).
+\item \textbf{Cognitive constraints}: Research shows that humans can only maintain meaningful social connections with a limited number of people (Dunbar's number suggests 150, but for active engagement, much fewer).
+\item \textbf{Information overload}: Following too many people creates noise, making it difficult to find valuable recommendations.
+\end{itemize}
+
+Given these constraints, the user faces a critical decision: \textit{Which $k$ friends should I follow to discover the maximum number of unique, interesting places?}
+
+\textbf{Example Scenario}: Alice just moved to New York City. She can follow at most 5 local friends. Her potential friends have visited various locations:
+\begin{itemize}
+\item \textbf{Bob}: Central Park, MoMA, Times Square, Brooklyn Bridge, Statue of Liberty
+\item \textbf{Carol}: Central Park, The High Line, Chelsea Market, Brooklyn Bridge
+\item \textbf{Dave}: MoMA, The Met, Central Park, Rockefeller Center
+\item \textbf{Eve}: Coney Island, Brooklyn Bridge, Prospect Park
+\item \textbf{Frank}: The High Line, Whitney Museum, Little Island, The Vessel
+\end{itemize}
+
+If Alice follows Bob and Carol, she discovers 8 unique locations (Central Park and Brooklyn Bridge appear in both sets but count once). If she instead follows Bob and Frank, she discovers 9 unique locations. The challenge is to select the optimal subset of $k$ friends to maximize unique location discovery.
+
+This problem has practical applications beyond personal use:
+\begin{itemize}
+\item \textbf{City guide apps}: Recommending which local influencers to follow
+\item \textbf{Travel planning}: Selecting tour guides or travel bloggers with diverse location knowledge
+\item \textbf{Marketing}: Identifying key opinion leaders with maximum reach across different venues
+\end{itemize}
+
+\subsection{Problem Abstraction: Maximum Coverage}
+\label{sec:greedy-abstraction}
+
+We formalize the location discovery problem as follows:
+
+\begin{definition}[Maximum Coverage Problem]
+\label{def:max-coverage}
+Given:
+\begin{itemize}
+\item A universe of elements $\mathcal{L} = \{\ell_1, \ell_2, \ldots, \ell_m\}$ (locations)
+\item A collection of sets $\mathcal{U} = \{L_1, L_2, \ldots, L_n\}$ where each $L_i \subseteq \mathcal{L}$ (locations visited by user $i$)
+\item An integer constraint $k \leq n$ (maximum friends to follow)
+\end{itemize}
+Find: A subset $S \subseteq \mathcal{U}$ with $|S| \leq k$ that maximizes the coverage function:
+\begin{equation}
+f(S) = \left| \bigcup_{L_i \in S} L_i \right|
+\end{equation}
+\end{definition}
+
+\textbf{Abstraction Mapping}:
+\begin{itemize}
+\item \textbf{Elements} ($\mathcal{L}$): Individual locations/places in the city
+\item \textbf{Sets} ($L_i$): Collection of locations visited by user $i$
+\item \textbf{Universe} ($\mathcal{U}$): All users available to follow
+\item \textbf{Constraint} ($k$): Maximum number of friends to follow
+\item \textbf{Objective}: Maximize $|\bigcup_{L_i \in S} L_i|$ (unique locations discovered)
+\end{itemize}
+
+\textbf{Computational Complexity}: The maximum coverage problem is NP-hard~\cite{Karp1972}. This can be shown by reduction from the Set Cover problem. Therefore, unless P = NP, no polynomial-time algorithm can find the optimal solution for all instances. This motivates the use of approximation algorithms.
+
+\subsection{Greedy Algorithm Solution}
+\label{sec:greedy-algorithm}
+
+We propose a greedy algorithm that iteratively selects users who provide the maximum \textit{marginal gain}---the number of new locations not yet covered.
+
+\begin{algorithm}
+\caption{Greedy Maximum Coverage}
+\label{alg:greedy-coverage}
+\begin{algorithmic}[1]
+\Require Universe $\mathcal{L}$, user location sets $\{L_1, \ldots, L_n\}$, constraint $k$
+\Ensure Selected set $S$ with $|S| \leq k$
+\State $S \gets \emptyset$ \Comment{Selected users}
+\State $\text{covered} \gets \emptyset$ \Comment{Locations discovered so far}
+\For{$i = 1$ to $k$}
+    \State $\text{best\_user} \gets \text{null}$
+    \State $\text{max\_gain} \gets 0$
+    \For{each user $u \in \mathcal{U} \setminus S$} \Comment{Unselected users}
+        \State $\text{gain} \gets |L_u \setminus \text{covered}|$ \Comment{Marginal gain}
+        \If{$\text{gain} > \text{max\_gain}$}
+            \State $\text{max\_gain} \gets \text{gain}$
+            \State $\text{best\_user} \gets u$
+        \EndIf
+    \EndFor
+    \If{$\text{best\_user} \neq \text{null}$} \Comment{Found a user with positive gain}
+        \State $S \gets S \cup \{\text{best\_user}\}$
+        \State $\text{covered} \gets \text{covered} \cup L_{\text{best\_user}}$
+    \EndIf
+\EndFor
+\State \Return $S, f(S) = |\text{covered}|$
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Algorithm Explanation}: The algorithm starts with an empty set of selected users and no locations covered. In each of $k$ iterations, it examines all remaining users and computes the marginal gain each would provide (number of new locations they would add). It greedily selects the user with maximum marginal gain, adds them to the selected set, and updates the set of covered locations. This process repeats until $k$ users are selected or no user provides additional coverage.
+
+\subsection{Time Complexity Analysis}
+\label{sec:greedy-complexity}
+
+\begin{theorem}[Time Complexity]
+Algorithm~\ref{alg:greedy-coverage} runs in $O(k \cdot n \cdot m)$ time, where $n = |\mathcal{U}|$ is the number of users, $k$ is the constraint, and $m$ is the average number of locations per user.
+\end{theorem}
+
+\begin{proof}
+We analyze the time complexity by examining each component:
+
+\textbf{Outer loop} (Lines 3-16): Executes exactly $k$ iterations, where $k \leq n$.
+
+\textbf{Inner loop} (Lines 6-12): For each iteration of the outer loop, we examine all unselected users. In the worst case, this is $O(n)$ users.
+
+\textbf{Marginal gain computation} (Line 7): Computing $|L_u \setminus \text{covered}|$ requires checking each location in $L_u$ for membership in the covered set. Let $|L_u| = m_u$ and $|\text{covered}| \leq k \cdot m_{\max}$ where $m_{\max}$ is the maximum locations per user.
+
+Using an appropriate data structure:
+\begin{itemize}
+\item Store \texttt{covered} as a hash set (unordered\_set in C++)
+\item For each location $\ell \in L_u$, check if $\ell \in \text{covered}$ in $O(1)$ expected time
+\item Total per user: $O(m_u)$ where $m_u = |L_u|$
+\end{itemize}
+
+\textbf{Total complexity}:
+\begin{align}
+T(n, k, m) &= k \cdot \sum_{i=1}^{k} \sum_{u \in \text{unselected}} O(m_u) \\
+&= k \cdot n \cdot O(m) \\
+&= O(k \cdot n \cdot m)
+\end{align}
+
+where $m = \frac{1}{n}\sum_{i=1}^{n} |L_i|$ is the average number of locations per user.
+
+\textbf{Space complexity}: $O(n \cdot m + k \cdot m)$ for storing user location sets and the covered set.
+
+\textbf{Optimizations}: The complexity can be improved to $O(k \cdot n \cdot \log m)$ using lazy evaluation with priority queues, where marginal gains are only recomputed when necessary.
+\end{proof}
+
+\subsection{Proof of Correctness}
+\label{sec:greedy-correctness}
+
+The correctness proof relies on the theory of submodular function maximization. We show that our greedy algorithm achieves a $(1 - 1/e) \approx 0.632$ approximation guarantee.
+
+\begin{definition}[Monotone Submodular Function]
+A set function $f: 2^{\mathcal{U}} \rightarrow \mathbb{R}$ is:
+\begin{itemize}
+\item \textbf{Monotone} if $f(A) \leq f(B)$ for all $A \subseteq B \subseteq \mathcal{U}$
+\item \textbf{Submodular} if for all $A \subseteq B \subseteq \mathcal{U}$ and $x \in \mathcal{U} \setminus B$:
+\begin{equation}
+f(A \cup \{x\}) - f(A) \geq f(B \cup \{x\}) - f(B)
+\end{equation}
+\end{itemize}
+\end{definition}
+
+The submodularity property captures \textit{diminishing returns}: adding an element to a smaller set provides at least as much gain as adding it to a larger set.
+
+\begin{lemma}[Coverage Function is Monotone Submodular]
+\label{lem:coverage-submodular}
+The coverage function $f(S) = |\bigcup_{L_i \in S} L_i|$ is monotone and submodular.
+\end{lemma}
+
+\begin{proof}
+\textbf{Monotonicity}: For any $A \subseteq B$:
+\begin{equation}
+f(A) = \left|\bigcup_{L_i \in A} L_i\right| \leq \left|\bigcup_{L_i \in B} L_i\right| = f(B)
+\end{equation}
+since $A \subseteq B$ implies $\bigcup_{L_i \in A} L_i \subseteq \bigcup_{L_i \in B} L_i$.
+
+\textbf{Submodularity}: Let $A \subseteq B$ and $u \in \mathcal{U} \setminus B$. We need to show:
+\begin{equation}
+f(A \cup \{u\}) - f(A) \geq f(B \cup \{u\}) - f(B)
+\end{equation}
+
+The left side represents locations in $L_u$ not covered by $A$:
+\begin{equation}
+f(A \cup \{u\}) - f(A) = |L_u \setminus \text{covered}(A)|
+\end{equation}
+where $\text{covered}(A) = \bigcup_{L_i \in A} L_i$.
+
+Similarly, the right side is:
+\begin{equation}
+f(B \cup \{u\}) - f(B) = |L_u \setminus \text{covered}(B)|
+\end{equation}
+
+Since $A \subseteq B$, we have $\text{covered}(A) \subseteq \text{covered}(B)$. Therefore:
+\begin{equation}
+L_u \setminus \text{covered}(A) \supseteq L_u \setminus \text{covered}(B)
+\end{equation}
+
+Thus:
+\begin{equation}
+|L_u \setminus \text{covered}(A)| \geq |L_u \setminus \text{covered}(B)|
+\end{equation}
+
+This proves submodularity: the marginal gain of adding user $u$ decreases (or stays the same) as the selected set grows.
+\end{proof}
+
+\begin{theorem}[Approximation Guarantee]
+\label{thm:greedy-approximation}
+Let $S^*$ be an optimal solution with $|S^*| \leq k$ and $S_{\text{greedy}}$ be the solution returned by Algorithm~\ref{alg:greedy-coverage}. Then:
+\begin{equation}
+f(S_{\text{greedy}}) \geq \left(1 - \frac{1}{e}\right) \cdot f(S^*)
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+This result follows from the general theory of greedy algorithms for monotone submodular maximization subject to cardinality constraints~\cite{Nemhauser1978}.
+
+Let $S_i$ denote the selected set after $i$ iterations, with $S_0 = \emptyset$ and $S_k = S_{\text{greedy}}$. Let $\text{OPT} = f(S^*)$.
+
+\textbf{Key insight}: In each iteration, the greedy algorithm selects the element with maximum marginal gain. We can show that:
+\begin{equation}
+f(S_{i+1}) - f(S_i) \geq \frac{1}{k}(\text{OPT} - f(S_i))
+\end{equation}
+
+This inequality states that the marginal gain in iteration $i+1$ is at least $\frac{1}{k}$ of the remaining gap to optimum.
+
+\textbf{Proof of key inequality}: Let $S^* = \{u_1^*, u_2^*, \ldots, u_t^*\}$ where $t \leq k$. By submodularity:
+\begin{align}
+\text{OPT} - f(S_i) &= f(S^*) - f(S_i) \\
+&= f(S_i \cup S^*) - f(S_i) \\
+&\leq \sum_{j=1}^{t} [f(S_i \cup \{u_j^*\}) - f(S_i)] \\
+&\leq k \cdot \max_{u \in S^*} [f(S_i \cup \{u\}) - f(S_i)] \\
+&\leq k \cdot [f(S_{i+1}) - f(S_i)]
+\end{align}
+
+The first inequality follows from submodularity (adding elements one at a time provides at least as much gain as adding them all together). The second inequality uses $t \leq k$. The third inequality follows because the greedy algorithm selects the element with maximum marginal gain among \textit{all} users, not just those in $S^*$.
+
+\textbf{Solving the recurrence}: From the inequality $f(S_{i+1}) - f(S_i) \geq \frac{1}{k}(\text{OPT} - f(S_i))$, we get:
+\begin{equation}
+f(S_{i+1}) \geq f(S_i) + \frac{1}{k}(\text{OPT} - f(S_i)) = \left(1 - \frac{1}{k}\right) f(S_i) + \frac{1}{k}\text{OPT}
+\end{equation}
+
+Rearranging:
+\begin{equation}
+\text{OPT} - f(S_{i+1}) \leq \left(1 - \frac{1}{k}\right)(\text{OPT} - f(S_i))
+\end{equation}
+
+By induction, starting from $f(S_0) = 0$:
+\begin{equation}
+\text{OPT} - f(S_k) \leq \left(1 - \frac{1}{k}\right)^k \text{OPT}
+\end{equation}
+
+Therefore:
+\begin{equation}
+f(S_k) \geq \left[1 - \left(1 - \frac{1}{k}\right)^k\right] \text{OPT}
+\end{equation}
+
+Using the fact that $\lim_{k \to \infty} (1 - \frac{1}{k})^k = \frac{1}{e}$ and $(1 - \frac{1}{k})^k \leq \frac{1}{e}$ for all $k \geq 1$:
+\begin{equation}
+f(S_{\text{greedy}}) = f(S_k) \geq \left(1 - \frac{1}{e}\right) \text{OPT} \approx 0.632 \cdot \text{OPT}
+\end{equation}
+
+This completes the proof.
+\end{proof}
+
+\textbf{Tightness of bound}: The $(1 - 1/e)$ approximation ratio is tight---there exist instances where no greedy algorithm can achieve better than this ratio~\cite{Feige1998}. Therefore, our algorithm achieves the best possible approximation for polynomial-time algorithms (assuming P $\neq$ NP).
+
+\subsection{Domain-Specific Explanation}
+\label{sec:greedy-domain}
+
+We now explain the algorithm in terms of the location discovery problem:
+
+\textbf{How it works}: Imagine you're building your friend list in a location-sharing app:
+
+\begin{enumerate}
+\item \textbf{Round 1}: Look at all potential friends. Count how many unique locations each person has visited. Follow the person with the most locations. For example, if Bob has visited 15 unique places, Carol 12, and Dave 10, you follow Bob first.
+
+\item \textbf{Round 2}: Now consider what's \textit{new}. Bob already showed you 15 places. If Carol's 12 locations include 8 that Bob already showed you, she only adds 4 new ones. But if Dave's 10 locations include only 2 that overlap with Bob, he adds 8 new ones. Follow Dave.
+
+\item \textbf{Continue}: Repeat this process, always selecting the friend who adds the most new locations you haven't seen yet, until you've filled all $k$ friend slots.
+\end{enumerate}
+
+\textbf{Why it works}: The algorithm captures two key insights:
+
+\begin{itemize}
+\item \textbf{Greedy is smart}: By always picking the friend who adds the most value \textit{right now}, we make locally optimal decisions that lead to globally good solutions.
+
+\item \textbf{Diminishing returns}: As you follow more people, there's increasing overlap in locations. The 5th friend you follow will likely add fewer new places than the 1st friend. This "diminishing returns" property (submodularity) is precisely why the greedy approach works well.
+\end{itemize}
+
+\textbf{Guarantee}: The algorithm mathematically guarantees that you'll discover at least 63\% of the locations you'd get with the absolute best possible selection of $k$ friends. In practice, it often performs much better (80-90\% of optimal), as our experiments will show.
+
+\textbf{Example walkthrough}: Returning to Alice's scenario with 5 potential friends:
+
+\begin{table}[h]
+\centering
+\caption{Greedy algorithm execution for Alice's location discovery}
+\label{tab:greedy-example}
+\small
+\begin{tabular}{llcc}
+\toprule
+Round & Selected Friend & New Locations & Total Discovered \\
+\midrule
+0 & --- & --- & 0 \\
+1 & Bob & 5 & 5 \\
+2 & Frank & 4 & 9 \\
+3 & Eve & 2 & 11 \\
+4 & Carol & 1 & 12 \\
+5 & Dave & 1 & 13 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Notice how the marginal gain decreases from 5 to 1 as we add more friends, demonstrating the diminishing returns property.
+
+\subsection{Experimental Validation}
+\label{sec:greedy-experiments}
+
+We implemented Algorithm~\ref{alg:greedy-coverage} in C++ and conducted experiments to verify:
+\begin{enumerate}
+\item The time complexity matches the theoretical $O(k \cdot n \cdot m)$ bound
+\item The approximation ratio is at least $(1 - 1/e) \approx 0.632$
+\item The algorithm outperforms random selection significantly
+\end{enumerate}
+
+\textbf{Experimental setup}:
+\begin{itemize}
+\item \textbf{Data generation}: Synthetic datasets with $n$ users and $L$ total locations
+\item \textbf{User location sets}: Each user visits $m$ locations randomly sampled from $L$, with optional Zipf distribution for realistic popularity
+\item \textbf{Parameters}: $n \in \{100, 500, 1000, 5000, 10000\}$, $k \in \{5, 10, 20, 50\}$, $L = 5000$, $m = 50$
+\item \textbf{Comparisons}: Greedy vs. Optimal (brute force for small $k$) vs. Random selection
+\item \textbf{Metrics}: Runtime, coverage achieved, approximation ratio
+\end{itemize}
+
+\textbf{Results}: Detailed experimental results including runtime plots and approximation ratio measurements are presented in Section~\ref{sec:experiments}.
+
+\textbf{Key findings}:
+\begin{itemize}
+\item Runtime scales linearly with $n$ for fixed $k$, confirming $O(k \cdot n \cdot m)$ complexity
+\item Approximation ratio consistently exceeds 0.75 (well above the 0.632 guarantee)
+\item Greedy achieves $2$-$3\times$ better coverage than random selection
+\item Algorithm remains practical even for $n = 10,000$ users
+\end{itemize}

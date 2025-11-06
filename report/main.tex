@@ -1,0 +1,187 @@
+%%
+%% Analysis of Location-Based Social Media Apps Algorithms
+%%
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    Bib\TeX}}}
+
+%% Packages for math and algorithms
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+%% Simple algorithm environment (without algorithm package)
+\usepackage{float}
+\newfloat{algorithm}{t}{lop}
+\floatname{algorithm}{Algorithm}
+\newenvironment{algorithmic}{\begin{quote}\small}{\end{quote}}
+\newcommand{\State}{\par\noindent}
+\newcommand{\For}[1]{\State\textbf{for} #1 \textbf{do}}
+\newcommand{\EndFor}{\State\textbf{end for}}
+\newcommand{\If}[1]{\State\textbf{if} #1 \textbf{then}}
+\newcommand{\EndIf}{\State\textbf{end if}}
+\newcommand{\While}[1]{\State\textbf{while} #1 \textbf{do}}
+\newcommand{\EndWhile}{\State\textbf{end while}}
+\newcommand{\Return}{\State\textbf{return} }
+\newcommand{\Require}{\State\textbf{Require:} }
+\newcommand{\Ensure}{\State\textbf{Ensure:} }
+\newcommand{\Comment}[1]{\hfill$\triangleright$ \textit{#1}}
+
+%% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{claim}[theorem]{Claim}
+
+\begin{document}
+
+\title{Analysis of Location-Based Social Media Apps Algorithms}
+
+%% Author information
+\author{
+  Anup Sedhain \\
+  92896347 \\
+  \texttt{anupsedhain@ufl.edu}
+  \and
+  Ila Adhikari \\
+  16944858 \\
+  \texttt{ilaadhikari@ufl.edu}
+}
+
+\date{
+  \vspace{1em}
+  University of Florida \\
+  Gainesville, Florida, USA \\
+  \vspace{0.5em}
+  \today
+}
+
+\maketitle
+
+\begin{abstract}
+Location-based social media applications have revolutionized how people discover places and connect with others. This paper analyzes two fundamental algorithmic paradigms applied to location-based social networks: greedy algorithms and divide-and-conquer techniques. We first address the problem of maximizing location discovery when users have limited capacity to follow friends, formulating it as a maximum coverage problem and providing a greedy algorithm with provable $(1-1/e)$ approximation guarantee. Second, we tackle the problem of finding the closest pair of users based on their geographic locations using an efficient divide-and-conquer approach achieving $O(n \log n)$ time complexity. For both problems, we provide rigorous theoretical analysis including time complexity proofs and correctness arguments, along with experimental validation demonstrating that empirical performance matches theoretical predictions.
+\end{abstract}
+
+\noindent\textbf{Keywords:} greedy algorithms, divide and conquer, maximum coverage, closest pair, location-based services, approximation algorithms, submodular optimization
+
+\section{Introduction}
+
+Location-based social media applications such as Foursquare, Swarm, and various check-in features in platforms like Instagram and Facebook have fundamentally changed how people explore their environments and connect with others. These applications generate vast amounts of geographic data as users share their locations at restaurants, parks, museums, and other points of interest. This rich dataset presents interesting algorithmic challenges in helping users discover new places and identify potential social connections.
+
+In this paper, we investigate two fundamental algorithmic problems in location-based social networks, demonstrating the power of classical algorithmic paradigms applied to modern applications. Our contributions are:
+
+\textbf{Problem 1: Maximum Location Discovery via Greedy Algorithm}: We formulate the problem of maximizing location discovery through friend selection as a maximum coverage problem. Users can follow a limited number of friends (due to platform constraints or cognitive limits), and each friend shares their visited locations. We provide a greedy algorithm that achieves a $(1-1/e) \approx 0.632$ approximation guarantee, with rigorous proof of correctness using submodular optimization theory. Our experimental results demonstrate that the algorithm achieves 99\% of optimal coverage on average while providing 41\% improvement over random selection. Time complexity: $O(k \cdot n \cdot m)$.
+
+\textbf{Problem 2: Near-Miss Encounter Detection via Divide \& Conquer}: We address the problem of finding the pair of users who were geographically closest to each other based on their location posts. We implement the classical divide and conquer closest pair algorithm, providing complete correctness proofs and $O(n \log n)$ time complexity analysis. Our experimental validation confirms the theoretical complexity, demonstrating $2.9\times$ speedup over brute force at $n=5000$ and scalability to $n=50,000$ points in under 25ms.
+
+\textbf{Paper Organization}: Section~\ref{sec:greedy} presents the maximum location discovery problem with complete greedy solution. Section~\ref{sec:divide-conquer} presents the closest pair problem with divide and conquer solution. Section~\ref{sec:experiments} provides comprehensive experimental validation for both algorithms. Section~\ref{sec:conclusion} concludes with discussion and future directions.
+
+\input{sections/greedy_problem}
+
+\input{sections/divide_conquer_problem}
+
+\input{sections/experiments}
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have presented rigorous algorithmic solutions to two fundamental problems in location-based social networks, demonstrating the power of classical algorithmic paradigms (greedy and divide \& conquer) applied to modern applications. Our key contributions and findings include:
+
+\subsection{Problem 1: Maximum Location Discovery (Greedy)}
+
+\textbf{Theoretical Contributions}:
+\begin{itemize}
+\item Formalized location discovery as a maximum coverage problem (NP-hard)
+\item Designed a greedy algorithm with $O(k \cdot n \cdot m)$ time complexity
+\item Proved $(1-1/e) \approx 0.632$ approximation guarantee using submodular optimization theory
+\item Showed the bound is tight (cannot be improved in general)
+\end{itemize}
+
+\textbf{Experimental Validation}:
+\begin{itemize}
+\item Confirmed $O(k \cdot n \cdot m)$ complexity through scalability tests
+\item Demonstrated 99\% average approximation ratio (far exceeds theoretical 63\%)
+\item Showed 41\% improvement over random selection
+\item Validated robustness on realistic (Zipf-distributed) data
+\end{itemize}
+
+\textbf{Key Insight}: While worst-case theoretical analysis guarantees 63\% of optimal, typical instances achieve near-optimal performance (99\%). This gap between theory and practice is common in approximation algorithms and highlights the value of empirical validation.
+
+\subsection{Problem 2: Closest Pair (Divide \& Conquer)}
+
+\textbf{Theoretical Contributions}:
+\begin{itemize}
+\item Formalized near-miss encounters as the closest pair of points problem
+\item Implemented the classical divide and conquer algorithm with $O(n \log n)$ time complexity
+\item Provided complete correctness proof using strong induction
+\item Proved the geometric lemma (at most 7 comparisons per strip point)
+\end{itemize}
+
+\textbf{Experimental Validation}:
+\begin{itemize}
+\item Confirmed $O(n \log n)$ complexity with 16\% coefficient of variation
+\item Demonstrated $2.9\times$ speedup over brute force at $n=5000$
+\item Scaled to $n=50,000$ points in under 25ms
+\item Showed consistent performance across uniform and clustered distributions
+\end{itemize}
+
+\textbf{Key Insight}: The divide and conquer approach transforms an intractable $O(n^2)$ problem into a practical $O(n \log n)$ solution. The geometric insight (limiting strip search to 7 points) is crucial for achieving this complexity.
+
+\subsection{Comparative Analysis}
+
+\begin{table}[h]
+\centering
+\caption{Summary of algorithmic approaches}
+\label{tab:comparison}
+\small
+\begin{tabular}{lcc}
+\toprule
+\textbf{Aspect} & \textbf{Greedy} & \textbf{Divide \& Conquer} \\
+\midrule
+Problem Type & Optimization (NP-hard) & Exact solution \\
+Paradigm & Approximation algorithm & Exact algorithm \\
+Complexity & $O(k \cdot n \cdot m)$ & $O(n \log n)$ \\
+Guarantee & $(1-1/e) \approx 63\%$ & Optimal \\
+Practical Perf. & 99\% of optimal & Optimal (always) \\
+Key Technique & Submodularity & Geometric insight \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Practical Impact}
+
+Both algorithms are production-ready:
+\begin{itemize}
+\item \textbf{Greedy}: Process 10,000 users in $\sim$108ms for friend recommendation systems
+\item \textbf{Divide \& Conquer}: Process 50,000 location posts in $\sim$23ms for near-miss detection
+\end{itemize}
+
+\subsection{Future Directions}
+
+\textbf{For both algorithms}:
+\begin{itemize}
+\item Evaluation on real-world check-in datasets (Foursquare, Gowalla, Yelp)
+\item Distributed implementations for massive-scale networks
+\item Privacy-preserving variants using differential privacy
+\end{itemize}
+
+\textbf{Problem-specific extensions}:
+\begin{itemize}
+\item \textbf{Greedy}: Weighted variant, dynamic updates, online algorithms
+\item \textbf{Divide \& Conquer}: Higher dimensions (3D with time), approximate nearest neighbors
+\end{itemize}
+
+This work demonstrates how classical algorithmic techniques can be effectively applied to modern social network problems, providing both theoretical guarantees and excellent practical performance. The combination of greedy approximation and divide \& conquer exact algorithms showcases the versatility of fundamental algorithmic paradigms in solving real-world problems.
+
+\section*{Acknowledgments}
+We thank the course instructors for valuable feedback on this project.
+
+\bibliography{references}
+
+\end{document}

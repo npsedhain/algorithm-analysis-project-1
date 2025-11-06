@@ -3,43 +3,83 @@
 ## Overview
 This project implements and analyzes two fundamental algorithmic paradigms applied to a location-based social network where users post their locations and become friends when they visit places within a certain radius of each other.
 
-## Problem 1: Greedy Algorithm - Friend Recommendation System
+## Problem 1: Greedy Algorithm - Maximum Location Discovery
 
 ### Real-World Problem
-Given a user with limited "follow slots" (e.g., only 10 premium follows), recommend which friends to follow to maximize connection quality based on shared location history.
+You just moved to a new city and want to explore interesting places. You can follow at most k local friends who will share their favorite locations with you. Each friend has visited different sets of locations (restaurants, parks, museums, etc.). Which k friends should you follow to discover the maximum number of unique places?
+
+**Example**: If Alice visited {Starbucks, Central Park, MoMA} and Bob visited {Central Park, Brooklyn Bridge, Times Square}, following both gives you 5 unique locations (Central Park appears in both but counts once).
 
 ### Problem Abstraction
-- **Data Structure**: Weighted graph
-- **Nodes**: Users in the social network
-- **Edge Weights**: Number of shared locations or proximity score between users
-- **Constraint**: Select at most k friends to follow
-- **Objective**: Maximize total connection quality (sum of edge weights)
+- **Input**:
+  - Set of users U = {u₁, u₂, ..., uₙ}
+  - Each user uᵢ has visited a set of locations Lᵢ ⊆ L (where L is the set of all locations)
+  - Constraint: Select at most k users
+- **Objective**: Maximize |⋃_{u ∈ S} Lᵤ| (total number of unique locations discovered)
+- **Problem Type**: Maximum Coverage Problem (NP-hard)
 
-This can be formulated as a weighted set cover or maximum weighted matching problem.
+This is a classic submodular optimization problem with well-studied theoretical properties.
 
 ### Solution Components
-1. **Algorithm**: Greedy selection
-   - Iteratively select the friend with highest marginal gain
-   - At each step, pick the user that adds maximum value to current selection
-   - Continue until k friends are selected
+1. **Algorithm**: Greedy Maximum Coverage
+   - **Initialization**: S = ∅ (selected friends), covered = ∅ (discovered locations)
+   - **Iteration** (repeat k times):
+     - For each unselected user u, compute marginal gain: |Lᵤ \ covered|
+     - Select user u* with maximum marginal gain
+     - Add u* to S and update covered locations
+   - **Output**: Selected set S and total coverage |covered|
 
-2. **Time Complexity**: O(n² log k) or O(n log n)
-   - Depends on implementation details (priority queue vs simple iteration)
+   **Pseudocode**:
+   ```
+   GreedyMaxCoverage(users, k):
+       S = ∅, covered = ∅
+       for i = 1 to k:
+           best_user = argmax_{u ∉ S} |Lᵤ \ covered|
+           S = S ∪ {best_user}
+           covered = covered ∪ L_best_user
+       return S, |covered|
+   ```
+
+2. **Time Complexity**: O(n·k·m) where m = average locations per user
+   - Outer loop: k iterations
+   - Inner loop: scan n users
+   - Marginal gain computation: O(m) per user (set difference)
+   - **Optimization**: Can be improved to O(n·k·log m) with better data structures
 
 3. **Proof of Correctness**:
-   - Show greedy achieves approximation guarantee
-   - Prove that greedy gives at least (1-1/e) ≈ 63% of optimal solution
-   - Use diminishing returns property of submodular functions
+   - **Step 1**: Define objective function f(S) = |⋃_{u∈S} Lᵤ|
+   - **Step 2**: Prove f is monotone (adding users never decreases coverage)
+   - **Step 3**: Prove f is submodular (diminishing returns property):
+     - For sets A ⊆ B and element u: f(A ∪ {u}) - f(A) ≥ f(B ∪ {u}) - f(B)
+     - Intuition: Adding u to smaller set A gives more new locations than adding to larger set B
+   - **Step 4**: Apply submodular maximization theorem:
+     - **Theorem**: For monotone submodular f, greedy achieves f(S_greedy) ≥ (1 - 1/e) · f(S_opt)
+   - **Step 5**: Prove by induction using marginal gain analysis
+   - **Result**: Greedy guarantees at least 63% of optimal coverage
 
 4. **Domain Explanation**:
-   - Explain in terms of social network recommendations
-   - Show how shared locations translate to friendship quality
+   - Models real location discovery through social connections
+   - Captures diminishing returns: early friends add many new places, later friends have more overlap
+   - Useful for recommendation systems, city guides, travel apps
+   - Trade-off between quantity (many friends) and constraint (limited follows)
 
 5. **Experimental Validation**:
    - C++ implementation with timing analysis
-   - Test on synthetic data with varying n and k
-   - Plot runtime vs input size
-   - Compare with brute force on small inputs to verify correctness
+   - **Synthetic Data Generation**:
+     - n users, each visits m_avg locations (from pool of L total locations)
+     - Random location assignment or clustered (some locations more popular)
+   - **Test Parameters**:
+     - n ∈ {100, 500, 1000, 5000, 10000}
+     - k ∈ {5, 10, 20, 50}
+     - L = 1000-10000 locations
+   - **Comparisons**:
+     - Greedy vs Brute Force (for small k ≤ 10)
+     - Greedy vs Random Selection
+     - Verify approximation ratio ≥ 63%
+   - **Plots**:
+     - Runtime vs n (show linear in n for fixed k)
+     - Coverage vs k (show diminishing returns)
+     - Approximation ratio (greedy/optimal) vs problem size
 
 ## Problem 2: Divide & Conquer - Closest Pair of Users
 
@@ -105,8 +145,8 @@ project-1/
 │   └── references.bib               # Bibliography
 ├── src/
 │   ├── greedy/
-│   │   ├── friend_recommendation.cpp
-│   │   └── friend_recommendation.h
+│   │   ├── max_coverage.cpp
+│   │   └── max_coverage.h
 │   ├── divide_conquer/
 │   │   ├── closest_pair.cpp
 │   │   └── closest_pair.h
@@ -132,10 +172,12 @@ project-1/
 - Set up LaTeX project using ACM/IEEE template on Overleaf
 
 ### Phase 2: Greedy Algorithm (Day 3-5)
-- Implement friend recommendation algorithm in C++
-- Write time complexity analysis
-- Develop correctness proof
-- Run experiments and collect data
+- Implement maximum coverage algorithm in C++
+- Implement brute force baseline for small inputs
+- Write time complexity analysis (O(n·k·m))
+- Develop submodularity proof and approximation guarantee
+- Run experiments: greedy vs optimal vs random
+- Measure approximation ratio (verify ≥ 63%)
 - Write corresponding LaTeX sections
 
 ### Phase 3: Divide & Conquer Algorithm (Day 6-8)
@@ -166,10 +208,24 @@ project-1/
 ## Key Technical Details
 
 ### Greedy Algorithm Specifics
-- Use adjacency matrix or adjacency list for graph representation
-- Implement priority queue for efficient friend selection
-- Track already-selected friends to avoid duplicates
-- Calculate marginal gain efficiently
+- **Data Structure**:
+  - Use `std::unordered_set<int>` for each user's location set (fast set operations)
+  - Use `std::unordered_set<int>` for tracking covered locations
+  - Use `std::vector<bool>` to mark selected users
+- **Optimization Techniques**:
+  - Cache marginal gains and update incrementally (only recompute for affected users)
+  - Use bitmasks for location sets if |L| is small (fast set operations)
+  - Consider lazy evaluation: don't recompute all gains every iteration
+- **Marginal Gain Computation**:
+  - For each user u: count locations in Lᵤ not in covered set
+  - Efficient set difference: iterate through u's locations, check membership
+- **Implementation Variants**:
+  - Basic: O(n·k·m) - recompute all gains each iteration
+  - Optimized: O(n·k·log m) - use priority queue with lazy updates
+- **Testing Strategy**:
+  - Unit test: verify submodular property on small examples
+  - Correctness: compare with brute force on small inputs (k ≤ 10, n ≤ 20)
+  - Approximation ratio: measure f(S_greedy)/f(S_optimal) ≥ 0.63
 
 ### Divide & Conquer Algorithm Specifics
 - Pre-sort points by x-coordinate once
@@ -178,12 +234,22 @@ project-1/
 - Handle edge cases: n ≤ 3, duplicate points
 
 ### Experimental Setup
-- Generate random 2D points (uniform distribution in square region)
-- For greedy: generate random weighted graphs
-- Test sizes: n = 100, 500, 1000, 5000, 10000, 50000, 100000
-- Run multiple trials (10-20) and report average
-- Use high-resolution timer (chrono library in C++)
-- Generate plots using Python/matplotlib or gnuplot
+- **Greedy Algorithm Data**:
+  - Generate n users, each with random set of locations
+  - Location pool size: L = 1000-10000 locations
+  - Each user visits m_avg ≈ 20-100 locations (randomly sampled)
+  - Can use Zipf distribution for realistic popularity (some locations visited by many users)
+  - Test sizes: n ∈ {100, 500, 1000, 5000, 10000}
+  - Test k values: k ∈ {5, 10, 20, 50}
+- **Divide & Conquer Data**:
+  - Generate random 2D points (uniform distribution in square region)
+  - Test sizes: n = 100, 500, 1000, 5000, 10000, 50000, 100000
+- **Timing**:
+  - Run multiple trials (10-20) and report average
+  - Use high-resolution timer (chrono library in C++)
+- **Plotting**:
+  - Generate plots using Python/matplotlib or gnuplot
+  - Save raw data as CSV for reproducibility
 
 ## LaTeX Template Recommendations
 - ACM SIGPLAN template (good for algorithms)
@@ -194,9 +260,12 @@ project-1/
 
 ## Resources to Cite
 - Introduction to Algorithms (CLRS) for standard algorithms
-- Computational Geometry textbook for closest pair
-- Original papers on greedy approximation algorithms
-- Any online resources used for understanding proofs
+- Computational Geometry textbook (O'Rourke or de Berg) for closest pair
+- **Greedy/Submodular Optimization**:
+  - Nemhauser, Wolsey, Fisher (1978): "An analysis of approximations for maximizing submodular set functions"
+  - Feige (1998): "A threshold of ln n for approximating set cover"
+  - Krause & Golovin (2014): "Submodular Function Maximization" survey
+- Any online resources used for understanding proofs (with proper attribution)
 
 ## LLM Usage Documentation (Appendix)
 Document in the appendix:
