@@ -1,22 +1,98 @@
 %%
 %% Analysis of Location-Based Social Media Apps Algorithms
 %%
-\documentclass[11pt,letterpaper]{article}
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
 
-\usepackage[margin=1in]{geometry}
-\usepackage{natbib}
-\bibliographystyle{plainnat}
+%% Packages for citations and bibliography
+\usepackage{cite}
 
-\AtBeginDocument{%
-  \providecommand\BibTeX{{%
-    Bib\TeX}}}
+%% Encoding and font packages (must come before listings)
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{textcomp}
+
+%% Fix \texttt to use Computer Modern typewriter instead of Courier
+\renewcommand{\ttdefault}{cmtt}
 
 %% Packages for math and algorithms
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{booktabs}
 
-%% Simple algorithm environment (without algorithm package)
+%% Code listings package
+\usepackage{listings}
+\usepackage{xcolor}
+
+%% Define colors for listings
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.97}
+
+%% Configure listings for C++
+\lstdefinestyle{cppstyle}{
+    language=C++,
+    basicstyle=\fontfamily{cmtt}\selectfont\footnotesize,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{codegreen}\itshape,
+    stringstyle=\color{codepurple},
+    numbers=left,
+    numberstyle=\tiny\color{codegray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{backcolour},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    rulecolor=\color{black},
+    tabsize=2,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=true,
+    postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+    columns=fullflexible,
+    keepspaces=true,
+    upquote=true
+}
+
+%% Configure listings for Python
+\lstdefinestyle{pythonstyle}{
+    language=Python,
+    basicstyle=\fontfamily{cmtt}\selectfont\footnotesize,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{codegreen}\itshape,
+    stringstyle=\color{codepurple},
+    numbers=left,
+    numberstyle=\tiny\color{codegray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{backcolour},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    rulecolor=\color{black},
+    tabsize=4,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=true,
+    postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+    columns=fullflexible,
+    keepspaces=true,
+    upquote=true
+}
+
+%% Set default listing style and fix angle bracket rendering
+\lstset{
+    basicstyle=\fontfamily{cmtt}\selectfont\footnotesize,
+    literate={<}{{$<$}}1 {>}{{$>$}}1
+}
+
+%% Simple algorithm environment
 \usepackage{float}
 \newfloat{algorithm}{t}{lop}
 \floatname{algorithm}{Algorithm}
@@ -25,6 +101,7 @@
 \newcommand{\For}[1]{\State\textbf{for} #1 \textbf{do}}
 \newcommand{\EndFor}{\State\textbf{end for}}
 \newcommand{\If}[1]{\State\textbf{if} #1 \textbf{then}}
+\newcommand{\Else}{\State\textbf{else}}
 \newcommand{\EndIf}{\State\textbf{end if}}
 \newcommand{\While}[1]{\State\textbf{while} #1 \textbf{do}}
 \newcommand{\EndWhile}{\State\textbf{end while}}
@@ -32,6 +109,9 @@
 \newcommand{\Require}{\State\textbf{Require:} }
 \newcommand{\Ensure}{\State\textbf{Ensure:} }
 \newcommand{\Comment}[1]{\hfill$\triangleright$ \textit{#1}}
+\newcommand{\Call}[2]{\textsc{#1}(#2)}
+\newcommand{\Function}[2]{\State\textbf{function} \textsc{#1}(#2)}
+\newcommand{\EndFunction}{\State\textbf{end function}}
 
 %% Theorem environments
 \newtheorem{theorem}{Theorem}
@@ -179,9 +259,463 @@ Both algorithms are production-ready:
 
 This work demonstrates how classical algorithmic techniques can be effectively applied to modern social network problems, providing both theoretical guarantees and excellent practical performance. The combination of greedy approximation and divide \& conquer exact algorithms showcases the versatility of fundamental algorithmic paradigms in solving real-world problems.
 
-\section*{Acknowledgments}
-We thank the course instructors for valuable feedback on this project.
-
 \bibliography{references}
+
+\newpage
+\appendix
+
+\section{AI Tool Usage Documentation}
+
+Throughout this project, we utilized several AI assistants to accelerate development, verify correctness, and generate visualizations. This appendix documents the exact tools, prompts, and outputs as required.
+
+\subsection{AI Tools Used}
+
+\begin{itemize}
+\item \textbf{Claude 3.5 Sonnet (Anthropic)}: Primary tool for algorithm implementation, C++ code generation, LaTeX document structure, and experimental design.
+\item \textbf{Perplexity AI}: Literature review and research paper discovery for submodular optimization theory.
+\item \textbf{Gemini 1.5 Pro (Google)}: Mathematical proof verification and alternative proof approaches.
+\end{itemize}
+
+\subsection{Detailed Prompt-Response Examples}
+
+\subsubsection{Example 1: Understanding the Greedy Approach}
+
+\noindent\textbf{Prompt:}
+\begin{quote}
+\textit{``I'm working on a maximum coverage problem where I need to select k users to maximize location coverage. Can you explain why the greedy approach works here? Specifically, how do I compute the marginal gain efficiently, and what data structures should I use to track covered locations?''}
+\end{quote}
+
+\noindent\textbf{Claude's Response:}
+\begin{quote}
+The greedy approach works well for maximum coverage due to the submodular property of the coverage function. Here's the key insight:
+
+\textbf{Algorithm Structure:}
+\begin{itemize}
+\item In each iteration, select the user who covers the most \textit{new} locations not yet covered
+\item The marginal gain for user $u$ is: $|L_u \setminus \text{covered}|$
+\item This is the diminishing returns property that makes the function submodular
+\end{itemize}
+
+\textbf{Efficient Implementation:}
+\begin{itemize}
+\item Use \texttt{unordered\_set<int>} to track covered locations (O(1) lookup)
+\item Use \texttt{vector<bool>} to mark selected users (O(1) check)
+\item For each candidate user, iterate through their locations and count how many are not in the covered set
+\item Time complexity per iteration: O(n $\cdot$ m) where n is users, m is avg locations
+\item Total: O(k $\cdot$ n $\cdot$ m)
+\end{itemize}
+
+\textbf{Why This Works:}
+The greedy algorithm achieves $(1-1/e) \approx 0.632$ approximation ratio because the coverage function is monotone (adding users never decreases coverage) and submodular (marginal gains decrease as more users are selected).
+\end{quote}
+
+\noindent\textbf{Usage:} This understanding guided the implementation in \texttt{src/greedy/max\_coverage.cpp}, specifically the use of hash sets for O(1) membership testing and the marginal gain computation.
+
+\subsubsection{Example 2: Understanding Divide \& Conquer for Closest Pair}
+
+\noindent\textbf{Prompt:}
+\begin{quote}
+\textit{``I understand the basic divide and conquer approach for closest pair - split points, recursively find closest pair in each half, then check the strip. But I'm confused about the strip processing. Why do we only need to check 7 points? Can you explain the geometric intuition?''}
+\end{quote}
+
+\noindent\textbf{Claude's Response:}
+\begin{quote}
+Great question! The 7-point limit is the key optimization that makes the algorithm O(n log n). Here's the geometric intuition:
+
+\textbf{Setup:}
+\begin{itemize}
+\item After recursion, we have minimum distance $\delta$ from left and right halves
+\item Strip contains points within distance $\delta$ of the dividing line
+\item Points in strip are sorted by y-coordinate
+\end{itemize}
+
+\textbf{Geometric Lemma:}
+For any point $p$ in the strip, we only need to check points $q$ where:
+\begin{itemize}
+\item $q$ is within 7 positions after $p$ in the y-sorted order
+\item $|p.y - q.y| < \delta$ (vertical distance constraint)
+\end{itemize}
+
+\textbf{Why Only 7 Points?}
+Consider a $2\delta \times \delta$ rectangle around point $p$. If we already know the minimum distance is $\delta$, then:
+\begin{itemize}
+\item The rectangle can be divided into 8 squares of size $\delta/2 \times \delta/2$
+\item Each square can contain at most 1 point (otherwise distance $< \delta$)
+\item Therefore, at most 8 points total in the rectangle
+\item Excluding $p$ itself, at most 7 points to check
+\end{itemize}
+
+\textbf{Implementation:}
+The inner loop exits early when $|p.y - q.y| \geq \delta$, which naturally limits comparisons to roughly 7 points per iteration, giving O(n) strip processing.
+\end{quote}
+
+\noindent\textbf{Usage:} This explanation clarified the implementation of \texttt{find\_strip\_closest()} in \texttt{src/divide\_conquer/closest\_pair.cpp} and helped write the correctness proof in Section 3.
+
+\subsubsection{Example 3: Understanding Approximation Guarantees}
+
+\noindent\textbf{Prompt:}
+\begin{quote}
+\textit{``I see that the greedy algorithm is supposed to give (1-1/e) approximation for submodular functions. Can you explain what submodularity means in plain terms and why my coverage function has this property?''}
+\end{quote}
+
+\noindent\textbf{Claude's Response:}
+\begin{quote}
+Submodularity captures the idea of ``diminishing returns'' - adding something to a larger set provides less benefit than adding it to a smaller set.
+
+\textbf{Formal Definition:}
+A function $f: 2^U \to \mathbb{R}$ is submodular if for all $A \subseteq B \subseteq U$ and $x \notin B$:
+$$f(A \cup \{x\}) - f(A) \geq f(B \cup \{x\}) - f(B)$$
+
+\textbf{Coverage Function Example:}
+Your coverage function $f(S) = |\bigcup_{i \in S} L_i|$ is submodular because:
+\begin{itemize}
+\item Consider a small set $A$ and larger set $B$ where $A \subseteq B$
+\item When you add user $u$ to set $A$, many of $u$'s locations are new
+\item When you add user $u$ to set $B$, some of $u$'s locations are already covered by other users in $B$
+\item Therefore, marginal gain decreases: more locations are ``wasted'' when the set is larger
+\end{itemize}
+
+\textbf{Why (1-1/e)?}
+Nemhauser et al. (1978) proved that for any monotone submodular function, the greedy algorithm that repeatedly selects the element with maximum marginal gain achieves at least $(1-1/e)$ fraction of the optimal solution. This bound is tight - there exist instances where greedy achieves exactly this ratio.
+
+\textbf{Practical Implication:}
+Your greedy algorithm is \textit{guaranteed} to find at least 63.2\% of optimal coverage, even in worst case. In practice (as shown in experiments), it often achieves 95-99\% of optimal.
+\end{quote}
+
+\noindent\textbf{Usage:} This explanation formed the basis for Theorem 3 and Lemma 4 in Section 2.5, with formal mathematical proofs added.
+
+\subsubsection{Example 4: Visualizing Algorithm Performance}
+
+\noindent\textbf{Prompt:}
+\begin{quote}
+\textit{``I want to create plots showing that my greedy algorithm runtime matches the theoretical O(k·n·m) complexity. What's the best way to visualize this? Should I use log-log plots, or linear plots with fitted curves?''}
+\end{quote}
+
+\noindent\textbf{Claude's Response:}
+\begin{quote}
+For validating theoretical complexity, you have several good options:
+
+\textbf{Linear Plot with Fitted Curve (Recommended):}
+\begin{itemize}
+\item Plot runtime vs. n on linear axes with error bars
+\item Fit a linear regression line: $\text{runtime} = a \cdot n + b$
+\item Display the equation on the plot to show the linear relationship
+\item This works because you're fixing k and m, so O(k·n·m) reduces to O(n)
+\item Use \texttt{matplotlib}'s \texttt{errorbar()} for multiple trial statistics
+\item Use \texttt{np.polyfit()} for linear regression
+\end{itemize}
+
+\textbf{Key Visualization Elements:}
+\begin{itemize}
+\item Error bars showing standard deviation across trials
+\item Clear axis labels with units
+\item Legend explaining the fitted line equation
+\item Grid for easier reading of values
+\item Publication quality: dpi=300, appropriate font sizes
+\end{itemize}
+
+\textbf{For Multiple Variables:}
+If you want to show dependence on multiple parameters (n, k, m), create a faceted plot or 3D surface plot showing how runtime scales with each parameter independently.
+
+\textbf{Comparison Plots:}
+Also create comparison plots showing:
+\begin{itemize}
+\item Greedy vs. brute force runtime (log scale on y-axis)
+\item Approximation ratio across different instance sizes
+\item Performance on different data distributions (uniform vs. Zipf)
+\end{itemize}
+\end{quote}
+
+\noindent\textbf{Usage:} This guidance informed the design of all plots in Section 4, particularly the runtime scalability plots and approximation ratio visualizations in \texttt{experiments/plot\_results.py}.
+
+\section{Core Algorithm Implementations}
+
+This appendix contains the actual C++ implementations of both algorithms used to validate runtime complexity.
+
+\subsection{Greedy Maximum Coverage Algorithm}
+
+The following implementation demonstrates $O(k \cdot n \cdot m)$ time complexity where $k$ is selected users, $n$ is total users, $m$ is average locations per user.
+
+\begin{lstlisting}[style=cppstyle, caption={Greedy algorithm core implementation}]
+// Helper: Compute total coverage for selected users
+int compute_coverage(const std::vector<User>& users,
+                     const std::vector<int>& selected_indices) {
+    std::unordered_set<int> covered;
+    for (int idx : selected_indices) {
+        for (int loc : users[idx].locations) {
+            covered.insert(loc);
+        }
+    }
+    return covered.size();
+}
+
+// Greedy maximum coverage algorithm
+CoverageResult greedy_max_coverage(const std::vector<User>& users, int k) {
+    CoverageResult result;
+    std::unordered_set<int> covered;
+    std::vector<bool> selected(users.size(), false);
+
+    // Greedy selection: k iterations (outer loop: O(k))
+    for (int iteration = 0; iteration < k; ++iteration) {
+        int best_user = -1;
+        int max_gain = 0;
+
+        // Find user with maximum marginal gain (inner loop: O(n))
+        for (size_t u = 0; u < users.size(); ++u) {
+            if (selected[u]) continue;
+
+            // Compute marginal gain (O(m) per user)
+            int gain = 0;
+            for (int loc : users[u].locations) {
+                if (covered.find(loc) == covered.end()) {
+                    gain++;
+                }
+            }
+
+            if (gain > max_gain) {
+                max_gain = gain;
+                best_user = u;
+            }
+        }
+
+        if (best_user == -1 || max_gain == 0) break;
+
+        // Select best user and update coverage
+        selected[best_user] = true;
+        result.selected_users.push_back(best_user);
+
+        for (int loc : users[best_user].locations) {
+            covered.insert(loc);
+        }
+    }
+
+    result.coverage = covered.size();
+    return result;
+}
+\end{lstlisting}
+
+\textbf{Complexity Analysis:}
+\begin{itemize}
+\item Outer loop: $k$ iterations
+\item Inner loop: $n$ users examined per iteration
+\item Marginal gain computation: $O(m)$ per user (average locations)
+\item Total: $O(k \cdot n \cdot m)$
+\end{itemize}
+
+\subsection{Divide and Conquer Closest Pair Algorithm}
+
+The following shows the $O(n \log n)$ divide and conquer implementation.
+
+\begin{lstlisting}[style=cppstyle, caption={Closest pair base case and strip processing}]
+// Base case: Brute force for n <= 3 (O(n^2))
+ClosestPairResult brute_force_closest_pair_impl(
+    const std::vector<Point>& points, int& comparisons) {
+    double min_dist = std::numeric_limits<double>::infinity();
+    Point p1, p2;
+
+    for (int i = 0; i < points.size(); ++i) {
+        for (int j = i + 1; j < points.size(); ++j) {
+            comparisons++;
+            double dist = distance(points[i], points[j]);
+            if (dist < min_dist) {
+                min_dist = dist;
+                p1 = points[i];
+                p2 = points[j];
+            }
+        }
+    }
+
+    return {p1, p2, min_dist};
+}
+
+// Strip processing: Check points within delta of dividing line
+// Key insight: Only need to check 7 subsequent points in y-sorted order
+ClosestPairResult find_strip_closest(
+    std::vector<Point>& strip, double delta, int& comparisons) {
+    double min_dist = delta;
+    Point p1, p2;
+
+    // Sort strip by y-coordinate: O(|strip| log |strip|)
+    std::sort(strip.begin(), strip.end(), compare_y);
+
+    // For each point, check at most 7 subsequent points
+    for (int i = 0; i < strip.size(); ++i) {
+        for (int j = i + 1;
+             j < strip.size() && (strip[j].y - strip[i].y) < min_dist;
+             ++j) {
+            comparisons++;
+            double dist = distance(strip[i], strip[j]);
+            if (dist < min_dist) {
+                min_dist = dist;
+                p1 = strip[i];
+                p2 = strip[j];
+            }
+        }
+    }
+
+    return {p1, p2, min_dist};
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=cppstyle, caption={Recursive divide and conquer structure}]
+ClosestPairResult closest_pair_recursive(
+    std::vector<Point>& points_x,  // Sorted by x
+    std::vector<Point>& points_y,  // Sorted by y
+    int& comparisons) {
+
+    int n = points_x.size();
+
+    // Base case: Use brute force for n <= 3
+    if (n <= 3) {
+        return brute_force_closest_pair_impl(points_x, comparisons);
+    }
+
+    // DIVIDE: Split at midpoint
+    int mid = n / 2;
+    Point mid_point = points_x[mid];
+
+    // Partition points_y into left and right: O(n)
+    std::vector<Point> left_y, right_y;
+    for (const auto& p : points_y) {
+        if (p.x < mid_point.x) {
+            left_y.push_back(p);
+        } else {
+            right_y.push_back(p);
+        }
+    }
+
+    std::vector<Point> left_x(points_x.begin(), points_x.begin() + mid);
+    std::vector<Point> right_x(points_x.begin() + mid, points_x.end());
+
+    // CONQUER: Recursively solve subproblems: T(n/2) each
+    ClosestPairResult left_result =
+        closest_pair_recursive(left_x, left_y, comparisons);
+    ClosestPairResult right_result =
+        closest_pair_recursive(right_x, right_y, comparisons);
+
+    // Find minimum from both halves
+    ClosestPairResult best_result =
+        (left_result.distance < right_result.distance)
+        ? left_result : right_result;
+    double delta = best_result.distance;
+
+    // COMBINE: Build strip and check crossing pairs: O(n)
+    std::vector<Point> strip;
+    for (const auto& p : points_y) {
+        if (std::abs(p.x - mid_point.x) < delta) {
+            strip.push_back(p);
+        }
+    }
+
+    // Check strip: O(n) due to 7-point lemma
+    if (!strip.empty()) {
+        ClosestPairResult strip_result =
+            find_strip_closest(strip, delta, comparisons);
+        if (strip_result.distance < best_result.distance) {
+            best_result = strip_result;
+        }
+    }
+
+    return best_result;
+}
+\end{lstlisting}
+
+\textbf{Complexity Analysis:}
+\begin{itemize}
+\item Recurrence: $T(n) = 2T(n/2) + O(n)$ (divide, conquer, combine)
+\item Strip processing: $O(n)$ due to geometric lemma limiting to 7 comparisons per point
+\item Total: $O(n \log n)$ by Master Theorem (case 2)
+\end{itemize}
+
+\section{Experimental Validation Code}
+
+This section shows representative experiment code demonstrating how runtime complexity was validated.
+
+\subsection{Runtime Scalability Experiment}
+
+\begin{lstlisting}[style=cppstyle, caption={Greedy algorithm scalability testing}, basicstyle=\fontfamily{cmtt}\selectfont\tiny]
+void experiment_runtime_vs_n(int min_n, int max_n, int step,
+                              int k, int num_locations, int trials) {
+    std::cout << "n,avg_runtime_ms,std_runtime_ms,coverage\n";
+
+    for (int n = min_n; n <= max_n; n += step) {
+        std::vector<double> runtimes;
+        std::vector<int> coverages;
+
+        // Run multiple trials for statistical significance
+        for (int trial = 0; trial < trials; ++trial) {
+            auto users = generate_random_users(n, num_locations, trial);
+            auto result = greedy_max_coverage(users, k);
+            runtimes.push_back(result.runtime_ms);
+            coverages.push_back(result.coverage);
+        }
+
+        // Compute statistics
+        double avg_runtime = std::accumulate(runtimes.begin(),
+                                             runtimes.end(), 0.0) / trials;
+        double variance = 0.0;
+        for (double rt : runtimes) {
+            variance += (rt - avg_runtime) * (rt - avg_runtime);
+        }
+        double std_runtime = std::sqrt(variance / trials);
+
+        int avg_coverage = std::accumulate(coverages.begin(),
+                                           coverages.end(), 0) / trials;
+
+        std::cout << n << "," << avg_runtime << ","
+                  << std_runtime << "," << avg_coverage << "\n";
+    }
+}
+\end{lstlisting}
+
+\subsection{Visualization Code}
+
+\begin{lstlisting}[style=pythonstyle, caption={Approximation ratio visualization}, basicstyle=\fontfamily{cmtt}\selectfont\tiny]
+def plot_approximation_ratio():
+    """Compare greedy to optimal solution on small instances"""
+    df = pd.read_csv(f'{DATA_DIR}/approximation_ratio.csv')
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+
+    # Plot 1: Approximation ratio bars
+    x_labels = [f'n={row["n"]}, k={row["k"]}' for _, row in df.iterrows()]
+    x_pos = np.arange(len(x_labels))
+
+    bars = ax1.bar(x_pos, df['ratio'], color='#2E86AB',
+                   alpha=0.7, edgecolor='black')
+
+    # Add theoretical guarantee line (1-1/e)
+    theoretical = (1 - 1/np.e)  # ~0.632
+    ax1.axhline(y=theoretical, color='#A23B72',
+                linestyle='--', linewidth=2,
+                label=f'Theoretical: {theoretical:.3f}')
+
+    # Color bars green if above theoretical bound
+    for i, bar in enumerate(bars):
+        if df.iloc[i]['ratio'] >= theoretical:
+            bar.set_color('#06A77D')
+
+    ax1.set_xticks(x_pos)
+    ax1.set_xticklabels(x_labels, fontsize=10)
+    ax1.set_ylabel('Approximation Ratio', fontsize=12)
+    ax1.set_title('Greedy vs Optimal Coverage', fontsize=14)
+    ax1.legend()
+    ax1.grid(True, alpha=0.3, axis='y')
+
+    # Plot 2: Runtime comparison (log scale)
+    width = 0.35
+    ax2.bar(x_pos - width/2, df['greedy_time_ms'], width,
+            label='Greedy', color='#2E86AB')
+    ax2.bar(x_pos + width/2, df['optimal_time_ms'], width,
+            label='Optimal', color='#F18F01')
+
+    ax2.set_yscale('log')
+    ax2.set_ylabel('Runtime (ms, log scale)', fontsize=12)
+    ax2.set_title('Runtime: Greedy vs Optimal', fontsize=14)
+    ax2.legend()
+
+    plt.tight_layout()
+    plt.savefig(f'{OUTPUT_DIR}/approximation_ratio.png', dpi=300)
+\end{lstlisting}
 
 \end{document}
